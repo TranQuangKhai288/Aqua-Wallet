@@ -10,7 +10,7 @@ export async function sendToken(
 
   const chain = CHAINS_CONFIG[sepolia.chainId];
 
-  // Create a provider using the Infura RPC URL for Goerli
+  // Create a provider using the Infura RPC URL for Sepolia
   const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
 
   // Create a wallet instance from the sender's private key

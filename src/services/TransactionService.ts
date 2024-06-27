@@ -19,5 +19,4 @@ export class TransactionService {
     const response = await axios.request(options);
     return response;
   }
-
 }
