@@ -30,7 +30,15 @@ const AccountTransactions: React.FC<AccountTransactionsProps> = ({
     });
     TransactionService.getTransactions(account.address)
       .then((response) => {
-        setTransactions(response.data.result);
+        const transactions = response.data.result.map((transaction: any) => ({
+          hash: transaction.transaction_hash,
+          from_address: transaction.from_address,
+          to_address: transaction.to_address,
+          value: transaction.value,
+          block_timestamp: transaction.block_timestamp,
+          token_symbol: transaction.token_symbol,
+        }));
+        setTransactions(transactions);
       })
       .catch((error) => {
         console.log({ error });
@@ -127,7 +135,10 @@ const AccountTransactions: React.FC<AccountTransactionsProps> = ({
                   {shortenAddress(transaction.to_address)}
                 </a>
               </td>
-              <td>{ethers.utils.formatEther(transaction.value)} ETH</td>
+              <td>
+                {ethers.utils.formatEther(transaction.value)}{" "}
+                {transaction.token_symbol}
+              </td>
               <td>{new Date(transaction.block_timestamp).toLocaleString()}</td>
             </tr>
           ))}
