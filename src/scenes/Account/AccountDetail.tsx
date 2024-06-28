@@ -6,6 +6,7 @@ import AccountTransactions from "./AccountTransactions";
 import { ethers } from "ethers";
 import { toFixedIfNecessary } from "../../utils/AccountUtils";
 import "./Account.css";
+import ecr20abi from "../../erc20ABI.json";
 
 interface AccountDetailProps {
   account: Account;
@@ -26,8 +27,15 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const provider = new ethers.providers.JsonRpcProvider(sepolia.rpcUrl);
-      let accountBalance = await provider.getBalance(account.address);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const erc20 = new ethers.Contract(
+        "0x1354772F995F193A437669C0de370766af98676b",
+        ecr20abi,
+        provider
+      );
+      let accountBalance = await erc20.balanceOf(account.address);
+      console.log(accountBalance);
       setBalance(
         String(toFixedIfNecessary(ethers.utils.formatEther(accountBalance)))
       );

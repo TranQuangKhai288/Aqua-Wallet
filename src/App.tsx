@@ -1,9 +1,8 @@
-import React from 'react';
-import './App.css';
-import AccountCreate from './scenes/Account/AccountCreate';
+import React from "react";
+import "./App.css";
+import AccountCreate from "./scenes/Account/AccountCreate";
 
 function App() {
-  
   return (
     <div className="App container">
       <AccountCreate />
