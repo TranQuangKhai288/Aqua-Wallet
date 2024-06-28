@@ -1,3 +1,5 @@
+import { TransactionTypes } from "../enums/enums";
+
 export interface Transaction {
     hash: string,
     from_address: string,
@@ -5,4 +7,6 @@ export interface Transaction {
     value: string,
     block_timestamp: string,
     token_symbol: string,
+    transaction_type: TransactionTypes,
+    transaction_fee: string
 };

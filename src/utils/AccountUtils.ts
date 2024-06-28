@@ -15,13 +15,13 @@ export function generateAccount(seedPhrase: string = "", index: number = 0):
   new Wallet(seedPhrase);
 
   const { address } = wallet;
-  const account = { address, privateKey: wallet.privateKey, balance: "0" };
+  const account = { address, privateKey: wallet.privateKey, balance_TBT: "0" , balance_SepoliaETH: "0"};
   
   // If the seedphrase does not include spaces then it's actually a private key, so return a blank string.
   return { account, seedPhrase: seedPhrase.includes(" ")? seedPhrase : "" };
 }
 
-export function shortenAddress(str: string, numChars: number=4) {
+export function shortenAddress(str: string, numChars: number=3) {
   return `${str.substring(0, numChars)}...${str.substring(str.length - numChars)}`;
 }
 
