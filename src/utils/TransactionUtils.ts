@@ -2,7 +2,7 @@ import { ethers, Wallet } from 'ethers';
 import { CHAINS_CONFIG, goerli, sepolia } from '../models/Chain';
 import erc20abi from '../erc20ABI.json';
 
-export async function sendToken(
+export async function sendTBT(
   amount: number,
   from: string,
   to: string,

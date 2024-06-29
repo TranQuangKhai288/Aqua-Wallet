@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { sendToken } from "../../utils/TransactionUtils";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { sendTBT } from "../../utils/TransactionUtils";
 import { goerli, sepolia } from "../../models/Chain";
 import { Account } from "../../models/Account";
 import AccountTransactions from "./AccountTransactions";
@@ -15,7 +15,15 @@ interface AccountDetailProps {
 const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
   const [destinationAddress, setDestinationAddress] = useState("");
   const [amount, setAmount] = useState(0);
-  const [balance, setBalance] = useState(account.balance);
+  const [balanceTBT, setBalanceTBT] = useState(account.balance_TBT);
+  const [balanceSepoliaETH, setBalanceSepoliaETH] = useState(
+    account.balance_SepoliaETH
+  );
+  const [selectedValue, setSelectedValue] = useState("TBT");
+
+  const handleDropdownChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedValue(e.target.value);
+  };
 
   const [networkResponse, setNetworkResponse] = useState<{
     status: null | "pending" | "complete" | "error";
@@ -27,20 +35,24 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // await provider.send("eth_requestAccounts", []);
       const provider = new ethers.providers.JsonRpcProvider(sepolia.rpcUrl);
       const erc20 = new ethers.Contract(
         "0x1354772F995F193A437669C0de370766af98676b",
         ecr20abi,
         provider
       );
-      let accountBalance = await erc20.balanceOf(account.address);
-      console.log(accountBalance);
-      setBalance(
-        String(toFixedIfNecessary(ethers.utils.formatEther(accountBalance)))
+      let accountBalanceTBT = await erc20.balanceOf(account.address);
+      let accountBalanceSepoliaETH = await provider.getBalance(account.address);
+      setBalanceTBT(
+        String(toFixedIfNecessary(ethers.utils.formatEther(accountBalanceTBT)))
+      );
+      setBalanceSepoliaETH(
+        String(
+          toFixedIfNecessary(ethers.utils.formatEther(accountBalanceSepoliaETH))
+        )
       );
     };
+
     fetchData();
   }, [account.address]);
 
@@ -51,7 +63,12 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
   }
 
   function handleAmountChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setAmount(Number.parseFloat(event.target.value));
+    if (
+      Number.parseFloat(event.target.value) < 0 ||
+      isNaN(Number.parseFloat(event.target.value))
+    )
+      setAmount(Number.parseFloat("0"));
+    else setAmount(Number.parseFloat(event.target.value));
   }
 
   async function transfer() {
@@ -62,7 +79,7 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
     });
 
     try {
-      const { receipt } = await sendToken(
+      const { receipt } = await sendTBT(
         amount,
         account.address,
         destinationAddress,
@@ -109,19 +126,35 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
   }
 
   return (
-    <div className="AccountDetail container">
+    <div
+      className="AccountDetail container"
+      style={{
+        width: "100%",
+      }}
+    >
       <h4>
         Address:{" "}
-        <a
-          href={`https://sepolia.etherscan.io/address/${account.address}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {account.address}
-        </a>
+        <h5>
+          {" "}
+          <a
+            href={`https://sepolia.etherscan.io/address/${account.address}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {account.address}
+          </a>
+        </h5>
         <br />
-        Balance: {balance} TBT
+        Balance:
+        <br />
+        <h5>
+          Sepolia ETH: {balanceSepoliaETH} ETH
+          <br />
+          TwoBrosToken: {balanceTBT} TBT
+        </h5>
       </h4>
+      <br />
+      <h4>Transfer:</h4>
 
       <div className="form-group">
         <label>Destination Address:</label>
@@ -133,14 +166,28 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
         />
       </div>
 
-      <div className="form-group">
-        <label>Amount:</label>
-        <input
-          className="form-control"
-          type="number"
-          value={amount}
-          onChange={handleAmountChange}
-        />
+      <div className="AmountAndToken">
+        <div className="form-group">
+          <label>Amount:</label>
+          <input
+            className="form-control"
+            type="number"
+            value={amount}
+            onChange={handleAmountChange}
+          />
+        </div>
+
+        {/* <div className="form-group">
+          <label>Token:</label>
+          <select
+            className="form-control"
+            value={selectedValue}
+            onChange={handleDropdownChange}
+          >
+            <option value="SepoliaETH">SepoliaETH</option>
+            <option value="TBT">TBT</option>
+          </select>
+        </div> */}
       </div>
 
       <button
@@ -148,8 +195,9 @@ const AccountDetail: React.FC<AccountDetailProps> = ({ account }) => {
         type="button"
         onClick={transfer}
         disabled={!amount || networkResponse.status === "pending"}
+        style={{ marginTop: "20px" }}
       >
-        Send {amount} TBT
+        Send {amount} {selectedValue}
       </button>
 
       {networkResponse.status && (

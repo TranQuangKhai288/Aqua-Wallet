@@ -70,7 +70,12 @@ function AccountCreate() {
   }
 
   return (
-    <div className="AccountCreate p-5 m-3 card shadow">
+    <div
+      className="AccountCreate p-5 m-3 card shadow"
+      style={{
+        width: "100%",
+      }}
+    >
       <h1>Aqua Wallet</h1>
       <form onSubmit={(event) => event.preventDefault()}>
         <button

@@ -1,13 +1,7 @@
 .App {
   text-align: center;
-  width: 640px;
+  width: 620px;
   max-width: 100%;
-}
-
-
-input.form-control {
-  margin-top: 5px;
-  margin-bottom: 5px;
 }
 
 .btn {
